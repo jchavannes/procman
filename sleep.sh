@@ -8,7 +8,7 @@ EXIT_MESSAGE_INCOMPLETE="Sleeping exited."
 
 for SLEEP in $SLEEPS; do
   sleep $SLEEP &
-  addScript $SLEEP
+  addScript "sleep $SLEEP"
 done
 
 runStatusChecker
