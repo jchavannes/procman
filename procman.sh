@@ -40,8 +40,7 @@ outputStatus() {
   done
 }
 clearStatus() {
-  NUM=${#SCRIPTS[@]}
-  echo -en "\033[G\033[${NUM}A\033[K"
+  echo -en "\033[G\033[${#SCRIPTS[@]}A\033[K"
 }
 
 killAll() {
