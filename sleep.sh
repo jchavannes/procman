@@ -1,10 +1,5 @@
-procman
-=======
-
-Bash process manager
-
-```sh
 #!/bin/bash
+
 . procman.sh
 
 SLEEPS="1 5 2 3"
@@ -17,4 +12,3 @@ for SLEEP in $SLEEPS; do
 done
 
 runStatusChecker
-```
