@@ -1,4 +1,5 @@
 #!/bin/bash
+exec 2> /dev/null
 
 SCRIPTS=()
 STATUSES=()
@@ -24,7 +25,7 @@ checkStatus() {
 }
 
 runStatusChecker() {
-  trap "killAll" EXIT
+  trap "shutDown" EXIT
   outputStatus
   while [ $ALL_DONE -eq "0" ]; do
     sleep 1
@@ -43,27 +44,42 @@ clearStatus() {
   echo -en "\033[G\033[${#SCRIPTS[@]}A\033[K"
 }
 
-killAll() {
+shutDown() {
   checkStatus
   if [ $ALL_DONE -eq "0" ]; then
+    killAll
+    sleep 1
     for ((i=0; i < ${#SCRIPTS[@]}; i++)); do
-      if [ `kill -0 ${PROCESSES[$i]} 2>&1 | wc -l` -eq "0" ]; then
-        kill -SIGKILL ${PROCESSES[$i]}
-        sleep 0.15
+      if [ ${STATUSES[$i]} == "Running" ]; then
         if [ `kill -0 ${PROCESSES[$i]} 2>&1 | wc -l` -eq "0" ]; then
           STATUSES[$i]="Unable to kill"
         else
           STATUSES[$i]="Killed"
         fi
-      elif [ "${STATUSES[$i]}" != "Complete" ]; then
-        # Weird state where it was running when checkStatus was ran, but finished while killing other scripts
-        STATUSES[$i]="Completed while killing"
       fi
-    done > /dev/null 2>&1
+    done
     clearStatus
     outputStatus
-    echo -n "$EXIT_MESSAGE_INCOMPLETE"
+    echo "$EXIT_MESSAGE_INCOMPLETE"
   else
     echo "$EXIT_MESSAGE"
   fi
+}
+
+killAll() {
+  for ((i=0; i < ${#SCRIPTS[@]}; i++)); do
+    if [ `kill -0 ${PROCESSES[$i]} 2>&1 | wc -l` -eq "0" ]; then
+      killTree ${PROCESSES[$i]}
+    fi
+  done
+}
+
+killTree() {
+  local _pid=$1
+  local _sig=${2:-SIGKILL}
+  kill -stop ${_pid}
+  for _child in $(ps -o pid --no-headers --ppid ${_pid}); do
+    killTree ${_child} ${_sig}
+  done
+  kill -${_sig} ${_pid}
 }
