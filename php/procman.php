@@ -1,6 +1,6 @@
 <?php
 
-register_shutdown_function("ProcessManager::flushThreads");
+register_shutdown_function(array("ProcessManager", "killThreads"));
 
 class ProcessManager {
 
@@ -52,14 +52,13 @@ class ProcessManager {
         return $statuses;
     }
 
-    static function flushThreads($poolName=false) {
+    static function killThreads($poolName=false) {
         foreach (self::$processThreads as $pool => $threads) {
             if ($poolName == $pool || $poolName == false) {
                 foreach ($threads as $thread) {
                     /** @var $thread ProcessThread */
                     $thread->kill();
                 }
-                self::$processThreads[$pool] = array();
             }
         }
     }
@@ -146,14 +145,13 @@ class ProcessThread {
             $this->process   = NULL;
             $this->done      = true;
         }
-        return $this->exit_code;
     }
 
     public function kill() {
         if (!$this->done) {
-            proc_terminate($this->process);
-            $this->process = NULL;
-            $this->done    = true;
+            $this->exit_code = proc_terminate($this->process);
+            $this->process   = NULL;
+            $this->done      = true;
         }
     }
 
@@ -176,14 +174,15 @@ class CLI {
     static private $rows = 0;
     static private $cols = 0;
 
-    static public function doOutput($text) {
+    static public function out($text) {
         if (self::$cols == 0) {
             self::$cols = exec("tput cols");
         }
-        $line = preg_replace("/\r|\n/", "", trim($text));
-        self::$rows += intval((strlen($line) - 1) / self::$cols) + 1;
-        $lines[] = $line;
-        echo $line . "\n";
+        $text = explode("\n", trim($text));
+        foreach ($text as $line) {
+            self::$rows += intval((strlen($line) - 1) / self::$cols) + 1;
+            echo $line . "\n";
+        }
         flush();
     }
 
