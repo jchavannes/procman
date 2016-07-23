@@ -18,14 +18,8 @@ done
 
 runStatusChecker
 ```
-```sh
-./sleep.sh
-Sleep 1: Complete
-Sleep 5: Complete
-Sleep 2: Complete
-Sleep 3: Complete
-Sleeping finished.
-```
+
+[![Bash Demo](https://i.imgur.com/XJOZ09a.gif)](https://www.youtube.com/watch?v=hVqE47r8Wwk)
 
 **- Example PHP script**
 ```php
