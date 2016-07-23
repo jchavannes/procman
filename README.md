@@ -19,7 +19,7 @@ done
 runStatusChecker
 ```
 
-[![Bash Demo](https://i.imgur.com/XJOZ09a.gif)](https://www.youtube.com/watch?v=hVqE47r8Wwk)
+![Bash Demo](./demo.gif)
 
 **- Example PHP script**
 ```php
